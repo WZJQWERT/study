@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/common-platform.iml" filepath="$PROJECT_DIR$/common-platform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common-platform-support/common-platform-auth/common-platform-auth.iml" filepath="$PROJECT_DIR$/common-platform-support/common-platform-auth/common-platform-auth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common-platform-support/common-platform-base/common-platform-base.iml" filepath="$PROJECT_DIR$/common-platform-support/common-platform-base/common-platform-base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common-platform-main/common-platform-main.iml" filepath="$PROJECT_DIR$/common-platform-main/common-platform-main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common-platform-support/common-platform-support.iml" filepath="$PROJECT_DIR$/common-platform-support/common-platform-support.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common-platform-support/common-platform-sys/common-platform-sys.iml" filepath="$PROJECT_DIR$/common-platform-support/common-platform-sys/common-platform-sys.iml" />
+    </modules>
+  </component>
+</project>

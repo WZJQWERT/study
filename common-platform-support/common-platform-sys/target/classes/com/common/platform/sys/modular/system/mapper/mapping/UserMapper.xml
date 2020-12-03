@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.common.platform.sys.modular.system.mapper.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.common.platform.sys.modular.system.entity.User">
+        <id column="user_id" property="userId" />
+    <result column="create_time" property="createTime" />
+    <result column="create_user" property="createUser" />
+    <result column="update_time" property="updateTime" />
+    <result column="update_user" property="updateUser" />
+        <result column="avatar" property="avatar" />
+        <result column="account" property="account" />
+        <result column="password" property="password" />
+        <result column="salt" property="salt" />
+        <result column="name" property="name" />
+        <result column="birthday" property="birthday" />
+        <result column="sex" property="sex" />
+        <result column="email" property="email" />
+        <result column="phone" property="phone" />
+        <result column="role_id" property="roleId" />
+        <result column="dept_id" property="deptId" />
+        <result column="status" property="status" />
+        <result column="version" property="version" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time AS "createTime",
+        create_user AS "createUser",
+        update_time AS "updateTime",
+        update_user AS "updateUser",
+        user_id AS "userId", avatar AS "avatar", account AS "account", salt AS "salt", name AS "name", birthday AS "birthday", sex AS "sex", email AS "email", phone AS "phone", role_id AS "roleId", dept_id AS "deptId", status AS "status", version AS "version"
+    </sql>
+
+    <sql id="Base_Column_List_With_Pwd">
+        create_time AS "createTime",
+        create_user AS "createUser",
+        update_time AS "updateTime",
+        update_user AS "updateUser",
+        user_id AS "userId", avatar AS "avatar", account AS "account", password AS "password", salt AS "salt", name AS "name", birthday AS "birthday", sex AS "sex", email AS "email", phone AS "phone", role_id AS "roleId", dept_id AS "deptId", status AS "status", version AS "version"
+    </sql>
+
+    <select id="selectUsers" resultType="map">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM sys_user
+        WHERE status != 'DELETED'
+        <if test="name!=null and name!=''">
+            AND (phone LIKE CONCAT('%',#{name},'%')
+            OR account LIKE CONCAT('%',#{name},'%')
+            OR name LIKE CONCAT('%',#{name},'%'))
+        </if>
+        <if test="deptId!=null and deptId!=0">
+            AND (dept_id = #{deptId}
+            OR dept_id IN (SELECT dept_id FROM sys_dept WHERE pids LIKE CONCAT('%$[',#{deptId},'$]%') escape '$')
+            )
+        </if>
+        <if test="beginTime!= null and beginTime!='' and endTime!=null and endTime!=''">
+            AND (create_time BETWEEN CONCAT(#{beginTime},' 00:00:00') AND CONCAT(#{endTime},' 23:59:59'))
+        </if>
+    </select>
+
+    <select id="selectUsers" resultType="map" databaseId="oracle">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM sys_user
+        WHERE status != 'DELETED'
+        <if test="name!=null and name!=''">
+            AND (phone LIKE '%'||#{name}||'%'
+            OR account LIKE '%'||#{name}||'%'
+            OR name LIKE '%'||#{name}||'%')
+        </if>
+        <if test="deptId!=null and deptId!=0">
+            AND (dept_id = #{deptId}
+            OR dept_id IN (SELECT dept_id FROM sys_dept WHERE pids LIKE '%['||#{deptId}||']%')
+            )
+        </if>
+        <if test="beginTime!= null and beginTime!='' and endTime!=null and endTime!=''">
+            AND (create_time &gt;= to_date(#{beginTime} || ' 00:00:00','yyyy-mm-dd hh24:mi:ss')
+            AND (create_time &gt;= to_date(#{endTime} || ' 23:59:59','yyyy-mm-dd hh24:mi:ss')
+        </if>
+    </select>
+
+    <select id="selectUsersByRole" resultType="map">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM sys_user
+        WHERE status != 'DELETED'
+        <if test="name!=null and name!=''">
+            AND (phone LIKE CONCAT('%',#{name},'%')
+            OR account LIKE CONCAT('%',#{name},'%')
+            OR name LIKE CONCAT('%',#{name},'%'))
+        </if>
+        <if test="roleId!=null and roleId!=0">
+            AND (role_id LIKE CONCAT('%',#{roleId}),'%')
+        </if>
+        <if test="beginTime!= null and beginTime!='' and endTime!=null and endTime!=''">
+            AND (create_time BETWEEN CONCAT(#{beginTime},' 00:00:00') AND CONCAT(#{endTime},' 23:59:59'))
+        </if>
+    </select>
+
+    <update id="setStatus">
+        UPDATE sys_user SET status = #{status} WHERE user_id = #{userId}
+    </update>
+
+    <update id="changePwd">
+        UPDATE sys_user SET password = #{pwd} WHERE user_id = #{userId}
+    </update>
+
+    <update id="setRoles">
+        UPDATE sys_user SET role_id = #{roleIds} WHERE user_id = #{userId}
+    </update>
+
+    <select id="getByAccount" resultType="com.common.platform.sys.modular.system.entity.User">
+        SELECT
+        <include refid="Base_Column_List_With_Pwd" />
+        FROM sys_user WHERE account = #{account} AND status != 'DELETED'
+    </select>
+
+    <select id="listUserAndRoleExpectAdmin" resultType="map">
+        SELECT
+        user.account AS account,
+        user.name AS name,
+        dept.simple_name AS simpleName
+        FROM sys_user user LEFT JOIN sys_dept dept ON user.dept_id = dept.dept_id
+    </select>
+</mapper>

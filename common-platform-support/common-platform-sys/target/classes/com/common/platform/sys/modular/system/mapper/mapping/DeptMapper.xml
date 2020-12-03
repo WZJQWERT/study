@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.common.platform.sys.modular.system.mapper.DeptMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.common.platform.sys.modular.system.entity.Dept">
+        <id column="dept_id" property="deptId" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_user" property="createUser" />
+    <result column="update_user" property="updateUser" />
+        <result column="pid" property="pid" />
+        <result column="pids" property="pids" />
+        <result column="simple_name" property="simpleName" />
+        <result column="full_name" property="fullName" />
+        <result column="description" property="description" />
+        <result column="version" property="version" />
+        <result column="sort" property="sort" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time AS "createTme",
+        update_time AS "updateTime",
+        create_user AS "createUser",
+        update_user AS "updateUser",
+        dept_id AS "deptId", pid AS "pid", pids AS "pids", simple_name AS "simpleName", full_name AS "fullName", description AS "description", version AS "version", sort AS "sort"
+    </sql>
+
+    <select id="layuiTree" resultType="com.common.platform.base.tree.node.LayuiTreeNode">
+        SELECT dept_id AS "id", pid AS "pid", simple_name AS "title",
+        (
+        CASE
+        WHEN (pid=0 OR pid IS NULL) THEN
+        'true'
+        ELSE
+        'false'
+        END
+        ) AS "spread" FROM sys_dept
+    </select>
+
+    <select id="layuiTree" resultType="com.common.platform.base.tree.node.LayuiTreeNode" databaseId="oracle">
+        SELECT dept_id AS "id", pid AS "pid", simple_name AS "title",
+        (
+        CASE
+        WHEN (pid=0 OR pid IS NULL) THEN
+        '1'
+        ELSE
+        '0'
+        END
+        ) AS "spread" FROM sys_dept
+    </select>
+
+    <select id="tree" resultType="com.common.platform.base.tree.node.ZTreeNode">
+        SELECT dept_id AS "id", pid AS "pId", simple_name AS "name",
+        (
+        CASE
+        WHEN (pid=0 OR pid IS NULL) THEN
+        'true'
+        ELSE
+        'false'
+        END
+        ) AS "open" FROM sys_dept
+    </select>
+
+    <select id="tree" resultType="com.common.platform.base.tree.node.ZTreeNode" databaseId="oracle">
+        SELECT dept_id AS "id", pid AS "pId", simple_name AS "name",
+        (
+        CASE
+        WHEN (pid=0 OR pid IS NULL) THEN
+        '1'
+        ELSE
+        '0'
+        END
+        ) AS "open" FROM sys_dept
+    </select>
+
+    <select id="treeviewNodes" resultType="com.common.platform.base.tree.node.TreeviewNode">
+        SELECT dept_id AS "tags", pid AS "parentId", simple_name AS "text" FROM sys_dept
+    </select>
+
+    <select id="list" resultType="map">
+        SELECT
+        <include refid="Base_Column_List"></include>
+        FROM sys_dept WHERE 1=1
+        <if test="condition!=null and condition!=''">
+            AND simple_name LIKE CONCAT('%',#{condition},'%') OR full_name LIKE CONCAT('%',#{condition},'%')
+        </if>
+        <if test="deptId!=null and deptId!=''">
+            AND (dept_id=#{deptId} OR dept_id
+            IN(SELECT dept_id FROM sys_dept WHERE pids LIKE CONCAT('%$[',#{deptId},'$]%') escape '$'))
+        </if>
+        ORDER BY sort ASC
+    </select>
+
+    <select id="list" resultType="map" databaseId="oracle">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM sys_dept WHERE 1=1
+        <if test="condition!=null and condition!=''">
+            AND simple_name LIKE '%' || #{condition} || '%' OR full_name LIKE '%' || #{condition} || '%'
+        </if>
+        <if test="deptId!=null and deptId!=''">
+            AND (dept_id=#{deptId} OR dept_id
+            IN(SELECT dept_id FROM sys_dept WHERE pids LIKE '%[' || #{deptId} || ']%'))
+        </if>
+        ORDER BY sort ASC
+    </select>
+
+    <select id="likePids" resultType="com.common.platform.sys.modular.system.entity.Dept">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM sys_dept WHERE 1=1
+        <if test="deptId!=null and deptId!=''">
+            AND pids LIKE CONCAT('%$[',#{deptId},'$]%') escape '$'
+        </if>
+    </select>
+
+    <select id="likePids" resultType="com.common.platform.sys.modular.system.entity.Dept" databaseId="oracle">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM sys_dept WHERE 1=1
+        <if test="deptId!=null and deptId!=''">
+            AND pids LIKE '%[' || #{deptId} || ']%'
+        </if>
+    </select>
+</mapper>
